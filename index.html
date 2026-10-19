@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <!--
-  Bhoradoba Royals Sporting Club - Version 1 (design only)
-  HOW THIS FILE IS ORGANIZED:
+  Bhoradoba Royals Sporting Club - Version 2 (Supabase connected)
   1. <style>   = colors and layout (CSS)
   2. <body>    = the page content (HTML)
-  3. <script>  = language toggle, menu, and future Supabase notes (JavaScript)
+  3. <script>  = language toggle, menu, login, polls, finance (JavaScript)
 
   BENGALI TEXT: every translatable text looks like
      <span data-bn="বাংলা লেখা">English text</span>
-  Change the English between the tags, and the Bengali inside data-bn="...".
 -->
 <html lang="en">
 <head>
@@ -16,7 +14,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title> BRSC </title>
 <style>
-  /* ===== COLORS: change these to restyle the whole site ===== */
   :root {
     --blue: #1a3fa8;
     --dark: #0e2468;
@@ -36,7 +33,6 @@
            box-shadow: 0 2px 8px rgba(0,0,0,.25); }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 700;
            font-size: 14px; text-decoration: none; color: var(--white); }
-  /* LOGO: see the instructions in the HTML below to replace it */
   .logo { width: 42px; height: 42px; border-radius: 50%; background: var(--white);
           object-fit: cover; border: 2px solid var(--white); }
   .tools { display: flex; gap: 8px; }
@@ -49,12 +45,11 @@
   nav a { display: block; padding: 12px 20px; color: var(--white);
           text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.15); }
 
-  /* ===== COVER PHOTO ===== */
-  /* To use your photo: put its file name in the url() below, e.g. url("cover.jpg") */
+  /* ===== COVER PHOTO (file name must be exactly Cover.png) ===== */
   .hero { min-height: 35vh; display: flex; align-items: center; justify-content: center;
           text-align: center; color: var(--white); padding: 30px 18px;
           background: linear-gradient(rgba(14,36,104,.65), rgba(26,63,168,.75)),
-                      url("Cover, png") center/cover, var(--blue); }
+                      url("Cover.png") center/cover, var(--blue); }
   .hero h1 { font-size: 30px; line-height: 1.25; margin-bottom: 10px; }
   .hero p { font-size: 16px; margin-bottom: 20px; }
   .btn { display: inline-block; background: var(--white); color: var(--dark);
@@ -78,7 +73,9 @@
                 padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; }
   .photo { aspect-ratio: 4/3; border-radius: 12px; display: flex; align-items: center;
            justify-content: center; color: var(--white); font-weight: 700;
-           background: linear-gradient(135deg, var(--blue), var(--dark)); }
+           background: linear-gradient(135deg, var(--blue), var(--dark)); overflow: hidden; }
+  .photo a { color: var(--white); text-decoration: none; display: flex; width: 100%;
+             height: 100%; align-items: center; justify-content: center; text-align: center; padding: 10px; }
   table { width: 100%; border-collapse: collapse; background: var(--white);
           border-radius: 10px; overflow: hidden; font-size: 14px; }
   th { background: var(--blue); color: var(--white); text-align: left; }
@@ -87,6 +84,36 @@
               border-radius: 10px; border: 1px solid var(--blue); background: var(--white);
               color: var(--blue); font-size: 15px; opacity: .6; }
   footer { background: var(--dark); color: var(--white); text-align: center; padding: 26px 16px; font-size: 14px; }
+
+  /* ===== NEW: LOGIN WINDOW, FORMS, LIVE POLLS & FINANCE ===== */
+  .modal { display: none; position: fixed; inset: 0; z-index: 50; background: rgba(14,36,104,.7);
+           align-items: center; justify-content: center; padding: 16px; }
+  .modal.show { display: flex; }
+  .modal-box { background: var(--white); border-radius: 14px; padding: 22px; width: 100%;
+               max-width: 380px; max-height: 92vh; overflow-y: auto; }
+  .modal-box h3 { color: var(--dark); margin-bottom: 12px; }
+  .field { margin-bottom: 10px; }
+  .field label { display: block; font-size: 13px; font-weight: 700; color: var(--dark); margin-bottom: 3px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 10px; border-radius: 8px;
+        border: 1px solid #b9c8f5; font-size: 15px; font-family: inherit; }
+  .btn-main { background: var(--blue); color: var(--white); border: 0; border-radius: 10px;
+              padding: 11px 18px; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .btn-main:disabled { opacity: .6; cursor: wait; }
+  .btn-link { background: none; border: 0; color: var(--blue); text-decoration: underline;
+              cursor: pointer; font-size: 14px; margin-top: 10px; }
+  .btn-small { background: #fff; color: #b00020; border: 1px solid #b00020; border-radius: 8px;
+               padding: 4px 10px; cursor: pointer; font-size: 13px; }
+  .msg { font-size: 14px; margin: 8px 0; padding: 8px 10px; border-radius: 8px; display: none; }
+  .msg.err { display: block; background: #ffe3e3; color: #8a0000; }
+  .msg.ok { display: block; background: #e0f7e4; color: #0b5d1e; }
+  .poll-live-opt { display: block; width: 100%; text-align: left; margin: 8px 0; padding: 12px;
+                   border-radius: 10px; border: 1px solid var(--blue); background: var(--white);
+                   color: var(--blue); font-size: 15px; cursor: pointer; }
+  .bar-row { margin: 8px 0; font-size: 14px; }
+  .bar { height: 10px; background: #d6e0ff; border-radius: 6px; overflow: hidden; margin-top: 3px; }
+  .bar > span { display: block; height: 100%; background: var(--blue); }
+  .admin-box { margin-top: 16px; border: 2px dashed var(--blue); border-radius: 14px; padding: 14px; background: var(--white); }
+  .totals { display: flex; flex-wrap: wrap; gap: 14px; margin: 10px 0; font-weight: 700; }
 
   @media (min-width: 800px) {
     nav { display: flex !important; position: static; background: none; padding: 0; }
@@ -101,21 +128,19 @@
 <!-- ================= HEADER ================= -->
 <header>
   <a class="brand" href="#home">
-    <!-- LOGO: upload your logo to GitHub as logo.png, then it shows here automatically.
-         Until then, the club's initials "BR" are shown instead. -->
-    <img class="logo" src="logo.png" alt="Club logo"
-         onerror="this.outerHTML='<div class=logo style=&quot;display:flex;align-items:center;justify-content:center;color:#1a3fa8;font-weight:800&quot;>BR</div>'">
+    <img class="logo" src="logo.png" alt="Club logo" onerror="logoFallback(this)">
     <span data-bn="ভরাডোবা রয়্যালস স্পোর্টিং ক্লাব"> BRSC </span>
   </a>
   <div class="tools">
-    <button id="langBtn" onclick="toggleLanguage()">বাংলা</button>
-    <button id="menuBtn" onclick="toggleMenu()">☰</button>
+    <button id="authBtn" type="button" onclick="authButtonClick()">Login</button>
+    <button id="langBtn" type="button" onclick="toggleLanguage()">বাংলা</button>
+    <button id="menuBtn" type="button" onclick="toggleMenu()">☰</button>
   </div>
   <nav id="menu" onclick="closeMenu()">
     <a href="#home" data-bn="হোম">Home</a>
     <a href="#about" data-bn="আমাদের সম্পর্কে">About</a>
-    <a href="#cricket" data-bn="ফুটবল">Football</a>
-    <a href="#football" data-bn="ক্রিকেট">Cricket</a>
+    <a href="#cricket" data-bn="ক্রিকেট">Cricket</a>
+    <a href="#football" data-bn="ফুটবল">Football</a>
     <a href="#badminton" data-bn="ব্যাডমিন্টন">Badminton</a>
     <a href="#notices" data-bn="নোটিশ">Notices</a>
     <a href="#gallery" data-bn="গ্যালারি">Gallery</a>
@@ -124,6 +149,35 @@
     <a href="#finance" data-bn="আর্থিক হিসাব">Finance</a>
   </nav>
 </header>
+
+<!-- ================= LOGIN / REGISTER WINDOW ================= -->
+<div class="modal" id="authModal" onclick="if(event.target===this)closeAuth()">
+  <div class="modal-box">
+    <h3 id="authTitle">Login</h3>
+    <form id="authForm" onsubmit="submitAuth(event)">
+      <div class="field" id="nameField" style="display:none">
+        <label data-bn="পুরো নাম">Full name</label>
+        <input type="text" id="authName" autocomplete="name">
+      </div>
+      <div class="field" id="phoneField" style="display:none">
+        <label data-bn="ফোন নম্বর">Phone number</label>
+        <input type="tel" id="authPhone" autocomplete="tel">
+      </div>
+      <div class="field">
+        <label data-bn="ইমেইল">Email</label>
+        <input type="email" id="authEmail" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label data-bn="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)">Password (at least 6 characters)</label>
+        <input type="password" id="authPass" autocomplete="current-password" minlength="6" required>
+      </div>
+      <div class="msg" id="authMsg"></div>
+      <button class="btn-main" id="authSubmit" type="submit">Login</button>
+      <button class="btn-link" type="button" onclick="closeAuth()" data-bn="বন্ধ করুন">Close</button>
+    </form>
+    <button class="btn-link" id="authSwitch" type="button" onclick="switchAuthMode()"></button>
+  </div>
+</div>
 
 <!-- ================= HOME / COVER ================= -->
 <div class="hero" id="home">
@@ -146,7 +200,7 @@
     <div class="card"><h3 data-bn="📍 অবস্থান">📍 Location</h3>
       <p data-bn="ভরাডোবা, ভালুকা, ময়মনসিংহ">Bhoradoba, Bhaluka, Mymensingh</p></div>
     <div class="card"><h3 data-bn="🤝 সদস্য হোন">🤝 Become a Member</h3>
-      <p data-bn="সদস্য নিবন্ধন শীঘ্রই আসছে।">Member registration is coming soon.</p></div>
+      <p data-bn="উপরের Login বাটনে চেপে নিবন্ধন করুন। অ্যাডমিন অনুমোদন দিলে আপনি সদস্য হবেন।">Press the Login button above and register. You become a member once the admin approves you.</p></div>
   </div>
 </section>
 
@@ -210,15 +264,17 @@
 <section id="gallery">
   <div class="inner">
   <h2 data-bn="📸 গ্যালারি">📸 Gallery</h2>
-  <!-- To add a real photo, replace a .photo div with: <img src="photo1.jpg" style="width:100%;border-radius:12px"> -->
   <div class="grid">
     <div class="photo"><img src="oven.jpg" alt="Club Photo" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div>
-        <div class="photo"><img src="logo.png" alt="Club Logo" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div>
-        <div class="photo"><img src="jersey.jpg" alt="Club Jersey" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div>
-    <div class="photo" data-bn="https://www.facebook.com/share/v/1CUFvwfYWk/">Video (Facebook  link)</div>
+    <div class="photo"><img src="logo.png" alt="Club Logo" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div>
+    <div class="photo"><img src="jersey.jpg" alt="Club Jersey" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div>
+    <div class="photo">
+      <a href="https://www.facebook.com/share/v/1CUFvwfYWk/" target="_blank" rel="noopener noreferrer"
+         data-bn="ভিডিও (ফেসবুক লিংক)">Video (Facebook link)</a>
+    </div>
   </div>
   </div>
-</section
+</section>
 
 <!-- ================= SPONSORS ================= -->
 <section id="sponsors">
@@ -234,13 +290,33 @@
 <section id="polls">
   <div class="inner">
   <h2 data-bn="🗳️ ক্লাব পোল">🗳️ Club Polls</h2>
-  <div class="notice-box" data-bn="⚠️ এটি শুধু ডিজাইনের নমুনা। লগইন ও গোপন ভোট এখনো কাজ করে না — এর জন্য পরবর্তী ধাপে নিরাপদ ব্যাকএন্ড লাগবে।">
+
+  <!-- Shown only if the Supabase key is not pasted yet -->
+  <div class="notice-box" id="pollNotice" data-bn="⚠️ এটি শুধু ডিজাইনের নমুনা। লগইন ও গোপন ভোট এখনো কাজ করে না — এর জন্য পরবর্তী ধাপে নিরাপদ ব্যাকএন্ড লাগবে।">
     ⚠️ This is a design preview only. Login and secret voting do NOT work yet — they need a secure backend in a later step.</div>
-  <div class="card">
+
+  <!-- Live status message (login needed / waiting for approval) -->
+  <div class="notice-box" id="pollStatus" style="display:none"></div>
+
+  <!-- Sample card (shown when not an approved member) -->
+  <div class="card" id="pollSample">
     <h3 data-bn="নমুনা প্রশ্ন: এ বছরের ম্যাচ ফি কত হবে?">Sample question: What should this year's match fee be?</h3>
-    <button class="poll-opt" disabled>৳ 50</button>
-    <button class="poll-opt" disabled>৳ 100</button>
-    <button class="poll-opt" disabled>৳ 150</button>
+    <button class="poll-opt" type="button" disabled>৳ 50</button>
+    <button class="poll-opt" type="button" disabled>৳ 100</button>
+    <button class="poll-opt" type="button" disabled>৳ 150</button>
+  </div>
+
+  <!-- Real polls (approved members only) -->
+  <div id="pollLive" style="display:none"></div>
+
+  <!-- Create poll (super admin only) -->
+  <div class="admin-box" id="pollAdmin" style="display:none">
+    <h3 data-bn="নতুন পোল তৈরি (সুপার অ্যাডমিন)">Create new poll (super admin)</h3>
+    <div class="field"><label data-bn="প্রশ্ন">Question</label><input type="text" id="newPollQ"></div>
+    <div class="field"><label data-bn="অপশন (প্রতি লাইনে একটি, কমপক্ষে ২টি)">Options (one per line, at least 2)</label>
+      <textarea id="newPollOpts" rows="4"></textarea></div>
+    <div class="msg" id="pollAdminMsg"></div>
+    <button class="btn-main" type="button" onclick="createPoll()" data-bn="পোল তৈরি করুন">Create poll</button>
   </div>
   </div>
 </section>
@@ -248,15 +324,37 @@
 <!-- ================= FINANCE ================= -->
 <section id="finance">
   <h2 data-bn="💰 আর্থিক হিসাব">💰 Finance</h2>
-  <div class="notice-box" data-bn="⚠️ নিচের সংখ্যাগুলো সম্পূর্ণ নকল নমুনা, ক্লাবের আসল হিসাব নয়। আসল হিসাব পরবর্তী ধাপে নিরাপদ ডাটাবেস যোগ করার পর আসবে।">
-    ⚠️ The numbers below are completely fake samples, NOT real club records. Real records will come after we add a secure database.</div>
-  <div style="overflow-x:auto">
-  <table>
-    <tr><th data-bn="বিবরণ">Details</th><th data-bn="ধরন">Type</th><th data-bn="পরিমাণ">Amount</th></tr>
-    <tr><td data-bn="মাসিক চাঁদা (নমুনা)">Monthly contribution (sample)</td><td data-bn="আয়">Income</td><td>৳ 1,000</td></tr>
-    <tr><td data-bn="ক্রিকেট বল কেনা (নমুনা)">Cricket balls (sample)</td><td data-bn="ব্যয়">Expense</td><td>৳ 400</td></tr>
-    <tr><td data-bn="স্পন্সর অনুদান (নমুনা)">Sponsor donation (sample)</td><td data-bn="আয়">Income</td><td>৳ 2,000</td></tr>
-  </table>
+
+  <!-- Shown only when not an approved member -->
+  <div id="financeSample">
+    <div class="notice-box" data-bn="⚠️ নিচের সংখ্যাগুলো সম্পূর্ণ নকল নমুনা, ক্লাবের আসল হিসাব নয়। আসল হিসাব দেখতে অনুমোদিত সদস্য হিসেবে লগইন করুন।">
+      ⚠️ The numbers below are completely fake samples, NOT real club records. Log in as an approved member to see the real records.</div>
+    <div style="overflow-x:auto">
+    <table>
+      <tr><th data-bn="বিবরণ">Details</th><th data-bn="ধরন">Type</th><th data-bn="পরিমাণ">Amount</th></tr>
+      <tr><td data-bn="মাসিক চাঁদা (নমুনা)">Monthly contribution (sample)</td><td data-bn="আয়">Income</td><td>৳ 1,000</td></tr>
+      <tr><td data-bn="ক্রিকেট বল কেনা (নমুনা)">Cricket balls (sample)</td><td data-bn="ব্যয়">Expense</td><td>৳ 400</td></tr>
+      <tr><td data-bn="স্পন্সর অনুদান (নমুনা)">Sponsor donation (sample)</td><td data-bn="আয়">Income</td><td>৳ 2,000</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- Real records (approved members only) -->
+  <div id="financeLive" style="display:none">
+    <div class="totals" id="financeTotals"></div>
+    <div style="overflow-x:auto" id="financeTableBox"></div>
+  </div>
+
+  <!-- Add record (finance admin / super admin only) -->
+  <div class="admin-box" id="financeAdmin" style="display:none">
+    <h3 data-bn="নতুন হিসাব যোগ করুন (ফাইন্যান্স অ্যাডমিন)">Add record (finance admin)</h3>
+    <div class="field"><label data-bn="তারিখ">Date</label><input type="date" id="finDate"></div>
+    <div class="field"><label data-bn="বিবরণ">Details</label><input type="text" id="finDesc"></div>
+    <div class="field"><label data-bn="ধরন">Type</label>
+      <select id="finType"><option value="income" id="optIncome">Income</option><option value="expense" id="optExpense">Expense</option></select></div>
+    <div class="field"><label data-bn="পরিমাণ (৳)">Amount (৳)</label><input type="number" id="finAmount" min="0.01" step="0.01"></div>
+    <div class="msg" id="financeAdminMsg"></div>
+    <button class="btn-main" type="button" onclick="addFinance()" data-bn="যোগ করুন">Add</button>
   </div>
 </section>
 
@@ -265,10 +363,35 @@
   <p data-bn="ভরাডোবা, ভালুকা, ময়মনসিংহ, বাংলাদেশ">Bhoradoba, Bhaluka, Mymensingh, Bangladesh</p>
 </footer>
 
+<!-- Supabase JavaScript SDK v2 (must load BEFORE our script below) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-  /* ===== 1. LANGUAGE TOGGLE ===== */
+  /* ===== 0. HELPERS ===== */
+  function $(id) { return document.getElementById(id); }
+  function logoFallback(img) {
+    var box = document.createElement("div");
+    box.className = "logo";
+    box.style.cssText = "display:flex;align-items:center;justify-content:center;color:#1a3fa8;font-weight:800;";
+    box.textContent = "BR";
+    img.replaceWith(box);
+  }
   var currentLang = "en";
-  // Save the English text the first time, so we can switch back.
+  function t(en, bn) { return currentLang === "bn" ? bn : en; }
+  function showMsg(id, text, ok) {
+    var m = $(id);
+    m.textContent = text || "";
+    m.className = text ? (ok ? "msg ok" : "msg err") : "msg";
+  }
+  function make(tag, text, cls) {
+    var e = document.createElement(tag);
+    if (text !== undefined && text !== null) e.textContent = text;
+    if (cls) e.className = cls;
+    return e;
+  }
+  function money(n) { return "৳ " + Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }); }
+
+  /* ===== 1. LANGUAGE TOGGLE ===== */
   document.querySelectorAll("[data-bn]").forEach(function (el) {
     el.setAttribute("data-en", el.textContent.trim());
   });
@@ -278,24 +401,296 @@
     document.querySelectorAll("[data-bn]").forEach(function (el) {
       el.textContent = el.getAttribute(currentLang === "bn" ? "data-bn" : "data-en");
     });
-    document.getElementById("langBtn").textContent = currentLang === "en" ? "বাংলা" : "English";
+    $("langBtn").textContent = currentLang === "en" ? "বাংলা" : "English";
+    renderAll();
   }
 
   /* ===== 2. MOBILE MENU ===== */
-  function toggleMenu() { document.getElementById("menu").classList.toggle("open"); }
-  function closeMenu()  { document.getElementById("menu").classList.remove("open"); }
+  function toggleMenu() { $("menu").classList.toggle("open"); }
+  function closeMenu()  { $("menu").classList.remove("open"); }
 
-  /* ===== 3. FUTURE BACKEND PLAN (Supabase) - NOTHING BELOW WORKS YET =====
-     Later steps will add, in this order:
-       a) SUPABASE_URL and SUPABASE_ANON_KEY (safe-to-share public keys)
-       b) Member registration and login        -> Supabase Auth
-       c) Roles (super admin, sports, finance) -> a "profiles" table + security rules
-       d) Notices, teams, gallery, sponsors    -> database tables
-       e) Secret polls                         -> votes stored without voter names
-       f) Finance records                      -> only finance admins can edit
-     NEVER put a secret "service_role" key in this file. */
-  var SUPABASE_URL = "";       // to be filled in later
-  var SUPABASE_ANON_KEY = "";  // to be filled in later
+  /* ===== 3. SUPABASE CONNECTION =====
+     Only the PUBLIC (publishable) key goes here. NEVER put a secret or
+     service_role key in this file. Security is enforced by RLS in the database. */
+  var SUPABASE_URL = "https://hyglspbcipsabybrbeyv.supabase.co";
+  var SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE"; // starts with sb_publishable_
+
+  var sb = null;
+  var currentUser = null;
+  var profile = null;
+
+  if (window.supabase && SUPABASE_PUBLISHABLE_KEY.indexOf("PASTE_") !== 0) {
+    try {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    } catch (err) {
+      console.error("Supabase client could not be created:", err);
+    }
+  } else {
+    console.warn("Supabase not connected: paste your publishable key above.");
+  }
+
+  function isApproved() { return !!(profile && profile.approved); }
+  function hasRole(list) { return isApproved() && list.indexOf(profile.role) !== -1; }
+
+  /* ===== 4. LOGIN / REGISTER ===== */
+  var authMode = "login";
+  function openAuth() {
+    if (!sb) { alert(t("Supabase is not connected yet. Paste the publishable key first.", "Supabase এখনো সংযুক্ত নয়। আগে publishable key বসান।")); return; }
+    setAuthMode("login");
+    showMsg("authMsg", "");
+    $("authModal").classList.add("show");
+  }
+  function closeAuth() { $("authModal").classList.remove("show"); }
+  function switchAuthMode() { setAuthMode(authMode === "login" ? "register" : "login"); showMsg("authMsg", ""); }
+  function setAuthMode(mode) {
+    authMode = mode;
+    var reg = mode === "register";
+    $("nameField").style.display = reg ? "block" : "none";
+    $("phoneField").style.display = reg ? "block" : "none";
+    $("authName").required = reg;
+    $("authPass").autocomplete = reg ? "new-password" : "current-password";
+    $("authTitle").textContent = reg ? t("Member Registration", "সদস্য নিবন্ধন") : t("Login", "লগইন");
+    $("authSubmit").textContent = reg ? t("Register", "নিবন্ধন করুন") : t("Login", "লগইন");
+    $("authSwitch").textContent = reg ? t("Already have an account? Login", "আগেই অ্যাকাউন্ট আছে? লগইন করুন")
+                                      : t("New here? Register as a member", "নতুন? সদস্য হিসেবে নিবন্ধন করুন");
+  }
+  function authButtonClick() {
+    if (currentUser) { sb.auth.signOut(); } else { openAuth(); }
+  }
+  async function submitAuth(e) {
+    e.preventDefault();
+    if (!sb) return;
+    var email = $("authEmail").value.trim();
+    var pass = $("authPass").value;
+    var btn = $("authSubmit");
+    btn.disabled = true;
+    showMsg("authMsg", "");
+    try {
+      if (authMode === "register") {
+        var res = await sb.auth.signUp({
+          email: email, password: pass,
+          options: { data: { full_name: $("authName").value.trim() } }
+        });
+        if (res.error) throw res.error;
+        if (res.data.session) {
+          var phone = $("authPhone").value.trim();
+          if (phone) { await sb.from("profiles").update({ phone: phone }).eq("id", res.data.user.id); }
+          closeAuth();
+        } else {
+          showMsg("authMsg", t("Registered! Check your email to confirm, then log in. An admin must approve you before you can use polls and finance.",
+                               "নিবন্ধন হয়েছে! ইমেইল চেক করে নিশ্চিত করুন, তারপর লগইন করুন। পোল ও আর্থিক হিসাব দেখতে অ্যাডমিনের অনুমোদন লাগবে।"), true);
+        }
+      } else {
+        var r2 = await sb.auth.signInWithPassword({ email: email, password: pass });
+        if (r2.error) throw r2.error;
+        closeAuth();
+      }
+    } catch (err) {
+      showMsg("authMsg", err.message || String(err), false);
+    }
+    btn.disabled = false;
+  }
+
+  async function loadProfile() {
+    profile = null;
+    if (!sb || !currentUser) return;
+    var r = await sb.from("profiles").select("id, full_name, phone, role, approved").eq("id", currentUser.id).maybeSingle();
+    if (r.error) { console.error(r.error); return; }
+    profile = r.data;
+  }
+
+  /* ===== 5. RENDER EVERYTHING ===== */
+  function updateAuthUI() {
+    var b = $("authBtn");
+    if (!sb) { b.textContent = "Login"; return; }
+    if (currentUser) {
+      var name = (profile && profile.full_name) ? profile.full_name.split(" ")[0] : "";
+      b.textContent = t("Logout", "লগআউট") + (name ? " (" + name + ")" : "");
+    } else {
+      b.textContent = t("Login", "লগইন");
+    }
+    if (authMode) setAuthMode(authMode);
+  }
+  function renderAll() {
+    updateAuthUI();
+    renderPolls();
+    renderFinance();
+    $("optIncome").textContent = t("Income", "আয়");
+    $("optExpense").textContent = t("Expense", "ব্যয়");
+  }
+
+  function statusText() {
+    if (!currentUser) return t("Please log in to vote and see club finance.", "ভোট দিতে ও আর্থিক হিসাব দেখতে লগইন করুন।");
+    if (!isApproved()) return t("Your account is waiting for admin approval.", "আপনার অ্যাকাউন্ট অ্যাডমিনের অনুমোদনের অপেক্ষায় আছে।");
+    return "";
+  }
+
+  /* ===== 6. CLUB POLLS (secret voting) ===== */
+  async function renderPolls() {
+    var notice = $("pollNotice"), status = $("pollStatus"), sample = $("pollSample"),
+        live = $("pollLive"), admin = $("pollAdmin");
+    if (!sb) {
+      notice.style.display = "block"; status.style.display = "none";
+      sample.style.display = "block"; live.style.display = "none"; admin.style.display = "none";
+      return;
+    }
+    notice.style.display = "none";
+    if (!isApproved()) {
+      status.textContent = statusText(); status.style.display = "block";
+      sample.style.display = "block"; live.style.display = "none"; admin.style.display = "none";
+      return;
+    }
+    status.style.display = "none"; sample.style.display = "none"; live.style.display = "block";
+    admin.style.display = hasRole(["super_admin"]) ? "block" : "none";
+
+    var pr = await sb.from("polls").select("id, question, is_open, poll_options(id, label)").order("id", { ascending: false });
+    var vr = await sb.from("poll_voters").select("poll_id");
+    live.textContent = "";
+    if (pr.error) { live.appendChild(make("div", pr.error.message, "msg err")); return; }
+    var voted = {};
+    (vr.data || []).forEach(function (v) { voted[v.poll_id] = true; });
+    if (!pr.data.length) { live.appendChild(make("p", t("No polls yet.", "এখনো কোনো পোল নেই।"))); return; }
+
+    for (var i = 0; i < pr.data.length; i++) {
+      var poll = pr.data[i];
+      var card = make("div", null, "card");
+      card.style.marginBottom = "14px";
+      card.appendChild(make("h3", poll.question));
+      var opts = (poll.poll_options || []).slice().sort(function (a, b) { return a.id - b.id; });
+
+      if (voted[poll.id] || !poll.is_open) {
+        var rr = await sb.rpc("poll_results", { p_poll_id: poll.id });
+        var rows = rr.data || [];
+        var total = rows.reduce(function (s, x) { return s + Number(x.votes); }, 0);
+        rows.forEach(function (row) {
+          var pct = total ? Math.round(Number(row.votes) * 100 / total) : 0;
+          var line = make("div", null, "bar-row");
+          line.appendChild(make("div", row.label + " — " + row.votes + " (" + pct + "%)"));
+          var bar = make("div", null, "bar"); var fill = document.createElement("span");
+          fill.style.width = pct + "%"; bar.appendChild(fill); line.appendChild(bar);
+          card.appendChild(line);
+        });
+        card.appendChild(make("p",
+          voted[poll.id] ? t("✅ You have voted. Your vote is secret.", "✅ আপনি ভোট দিয়েছেন। আপনার ভোট গোপন।")
+                         : t("This poll is closed.", "এই পোল বন্ধ।"), "tag"));
+      } else {
+        opts.forEach(function (o) {
+          var b = make("button", o.label, "poll-live-opt");
+          b.type = "button";
+          b.onclick = function () { castVote(o.id); };
+          card.appendChild(b);
+        });
+      }
+      if (hasRole(["super_admin"]) && poll.is_open) {
+        var cb = make("button", t("Close poll", "পোল বন্ধ করুন"), "btn-small");
+        cb.type = "button"; cb.style.marginTop = "8px";
+        (function (id) { cb.onclick = function () { closePoll(id); }; })(poll.id);
+        card.appendChild(cb);
+      }
+      live.appendChild(card);
+    }
+  }
+  async function castVote(optionId) {
+    var r = await sb.rpc("cast_vote", { p_option_id: optionId });
+    if (r.error) { alert(r.error.message); }
+    renderPolls();
+  }
+  async function closePoll(id) {
+    var r = await sb.from("polls").update({ is_open: false }).eq("id", id);
+    if (r.error) alert(r.error.message);
+    renderPolls();
+  }
+  async function createPoll() {
+    var q = $("newPollQ").value.trim();
+    var opts = $("newPollOpts").value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
+    if (!q || opts.length < 2) { showMsg("pollAdminMsg", t("Enter a question and at least 2 options.", "প্রশ্ন ও কমপক্ষে ২টি অপশন দিন।"), false); return; }
+    var p = await sb.from("polls").insert({ question: q }).select("id").single();
+    if (p.error) { showMsg("pollAdminMsg", p.error.message, false); return; }
+    var o = await sb.from("poll_options").insert(opts.map(function (l) { return { poll_id: p.data.id, label: l }; }));
+    if (o.error) { showMsg("pollAdminMsg", o.error.message, false); return; }
+    $("newPollQ").value = ""; $("newPollOpts").value = "";
+    showMsg("pollAdminMsg", t("Poll created.", "পোল তৈরি হয়েছে।"), true);
+    renderPolls();
+  }
+
+  /* ===== 7. FINANCE ===== */
+  async function renderFinance() {
+    var sample = $("financeSample"), live = $("financeLive"), admin = $("financeAdmin");
+    if (!sb || !isApproved()) {
+      sample.style.display = "block"; live.style.display = "none"; admin.style.display = "none";
+      return;
+    }
+    sample.style.display = "none"; live.style.display = "block";
+    var canEdit = hasRole(["finance_admin", "super_admin"]);
+    admin.style.display = canEdit ? "block" : "none";
+    if (canEdit && !$("finDate").value) $("finDate").value = new Date().toISOString().slice(0, 10);
+
+    var r = await sb.from("finance_records").select("*").order("record_date", { ascending: false }).order("id", { ascending: false });
+    var totals = $("financeTotals"), box = $("financeTableBox");
+    totals.textContent = ""; box.textContent = "";
+    if (r.error) { box.appendChild(make("div", r.error.message, "msg err")); return; }
+
+    var inc = 0, exp = 0;
+    r.data.forEach(function (x) { if (x.type === "income") inc += Number(x.amount); else exp += Number(x.amount); });
+    totals.appendChild(make("span", t("Income: ", "আয়: ") + money(inc)));
+    totals.appendChild(make("span", t("Expense: ", "ব্যয়: ") + money(exp)));
+    totals.appendChild(make("span", t("Balance: ", "জমা: ") + money(inc - exp)));
+
+    var table = document.createElement("table");
+    var head = document.createElement("tr");
+    [t("Date", "তারিখ"), t("Details", "বিবরণ"), t("Type", "ধরন"), t("Amount", "পরিমাণ")].concat(canEdit ? [""] : [])
+      .forEach(function (h) { head.appendChild(make("th", h)); });
+    table.appendChild(head);
+    r.data.forEach(function (x) {
+      var tr = document.createElement("tr");
+      tr.appendChild(make("td", x.record_date));
+      tr.appendChild(make("td", x.description));
+      tr.appendChild(make("td", x.type === "income" ? t("Income", "আয়") : t("Expense", "ব্যয়")));
+      tr.appendChild(make("td", money(x.amount)));
+      if (canEdit) {
+        var td = document.createElement("td");
+        var del = make("button", t("Delete", "মুছুন"), "btn-small");
+        del.type = "button";
+        del.onclick = function () { deleteFinance(x.id); };
+        td.appendChild(del); tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    });
+    if (!r.data.length) { box.appendChild(make("p", t("No records yet.", "এখনো কোনো হিসাব নেই।"))); }
+    else box.appendChild(table);
+  }
+  async function addFinance() {
+    var desc = $("finDesc").value.trim();
+    var amount = parseFloat($("finAmount").value);
+    if (!desc || !(amount > 0)) { showMsg("financeAdminMsg", t("Enter details and a valid amount.", "বিবরণ ও সঠিক পরিমাণ দিন।"), false); return; }
+    var r = await sb.from("finance_records").insert({
+      record_date: $("finDate").value || undefined,
+      description: desc, type: $("finType").value, amount: amount
+    });
+    if (r.error) { showMsg("financeAdminMsg", r.error.message, false); return; }
+    $("finDesc").value = ""; $("finAmount").value = "";
+    showMsg("financeAdminMsg", t("Record added.", "হিসাব যোগ হয়েছে।"), true);
+    renderFinance();
+  }
+  async function deleteFinance(id) {
+    if (!confirm(t("Delete this record?", "এই হিসাবটি মুছবেন?"))) return;
+    var r = await sb.from("finance_records").delete().eq("id", id);
+    if (r.error) alert(r.error.message);
+    renderFinance();
+  }
+
+  /* ===== 8. START ===== */
+  if (sb) {
+    sb.auth.onAuthStateChange(function (event, session) {
+      // setTimeout avoids a known Supabase deadlock when calling the database inside this callback
+      setTimeout(async function () {
+        currentUser = session ? session.user : null;
+        await loadProfile();
+        renderAll();
+      }, 0);
+    });
+  }
+  renderAll();
 </script>
 </body>
-  </html>
+</html>
